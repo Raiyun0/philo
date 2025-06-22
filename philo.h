@@ -4,14 +4,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <pthread.h>
 
-typedef struct s_data {
-    int             nb_philo;
-    int            time_to_die;
-    int            time_to_eat;
-    int            time_to_sleep;
-    int             must_eat_count;
-}   t_data;
+typedef struct s_philo	t_philo;
+
+typedef struct s_data
+{
+	int				nb_philo;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				must_eat_count;
+	long			start_time;
+	int				someone_died;
+	pthread_mutex_t	*forks;
+	pthread_mutex_t	print_mutex;
+	t_philo			*philos;
+}	t_data;
 
 typedef struct s_philo {
     int             id;
@@ -23,7 +34,11 @@ typedef struct s_philo {
     pthread_mutex_t *right_fork;
 }   t_philo;
 
+void	smart_sleep(long duration);
 int ft_atoi(const char *str);
 int parse_args(t_data *data, int argc, char **argv);
+int init_philo(t_data *data);
+int verif(t_data *data);
+long get_ms(void);
 
 #endif

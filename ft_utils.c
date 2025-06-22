@@ -1,5 +1,22 @@
 #include "philo.h"
 
+long get_ms(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv,NULL);
+    return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
+}
+
+void	smart_sleep(long duration)
+{
+	long	start;
+
+	start = get_ms();
+	while ((get_ms() - start) < duration)
+		usleep(100);
+}
+
 int ft_atoi(const char *str)
 {
     long res = 0;
