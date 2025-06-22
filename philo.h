@@ -35,10 +35,14 @@ typedef struct s_philo {
 }   t_philo;
 
 void	smart_sleep(long duration);
+void	print_state(t_philo *philo, char *msg);
+void	monitor(t_data *data);
+void	*routine(void *arg);
 int ft_atoi(const char *str);
 int parse_args(t_data *data, int argc, char **argv);
 int init_philo(t_data *data);
 int verif(t_data *data);
+int	start_simulation(t_data *data);
 long get_ms(void);
 
 #endif
