@@ -1,12 +1,24 @@
-#ifndef PHILO_H
-#define PHILO_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lakli-no <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/25 15:38:41 by lakli-no          #+#    #+#             */
+/*   Updated: 2025/06/25 15:38:43 by lakli-no         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <pthread.h>
+#ifndef PHILO_H
+# define PHILO_H
+
+# include <stdio.h>
+# include <stdlib.h>
+# include <limits.h>
+# include <unistd.h>
+# include <sys/time.h>
+# include <pthread.h>
 
 typedef struct s_philo	t_philo;
 
@@ -24,25 +36,29 @@ typedef struct s_data
 	t_philo			*philos;
 }	t_data;
 
-typedef struct s_philo {
-    int             id;
-    int             meals_eaten;
-    int            last_meal;
-    pthread_t       thread;
-    t_data          *data;
-    pthread_mutex_t *left_fork;
-    pthread_mutex_t *right_fork;
-}   t_philo;
+typedef struct s_philo
+{
+	int				id;
+	int				meals_eaten;
+	long			last_meal;
+	pthread_t		thread;
+	t_data			*data;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
+	pthread_mutex_t meal_mutex;
+}	t_philo;
 
-void	smart_sleep(long duration);
+int		ft_atoi(const char *str);
+int		parse_args(t_data *data, int argc, char **argv);
+int		init_philo(t_data *data);
+int		verif(t_data *data);
+int		start_simulation(t_data *data);
+
+void	*routine(void *arg);
 void	print_state(t_philo *philo, char *msg);
 void	monitor(t_data *data);
-void	*routine(void *arg);
-int ft_atoi(const char *str);
-int parse_args(t_data *data, int argc, char **argv);
-int init_philo(t_data *data);
-int verif(t_data *data);
-int	start_simulation(t_data *data);
-long get_ms(void);
+void	smart_sleep(long duration);
+void	do_routine_cycle(t_philo *philo);
+long	get_ms(void);
 
 #endif
