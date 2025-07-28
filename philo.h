@@ -1,64 +1,69 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   philo.h                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lakli-no <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/25 15:38:41 by lakli-no          #+#    #+#             */
-/*   Updated: 2025/06/25 15:38:43 by lakli-no         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef PHILO_H
 # define PHILO_H
 
+/*
+** libraries
+*/
+
 # include <stdio.h>
-# include <stdlib.h>
-# include <limits.h>
 # include <unistd.h>
+# include <stdlib.h>
 # include <sys/time.h>
 # include <pthread.h>
 
-typedef struct s_philo	t_philo;
+/*
+** structures
+*/
 
-typedef struct s_data
+typedef struct s_arg
 {
-	int				nb_philo;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				must_eat_count;
-	long			start_time;
-	int				someone_died;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	print_mutex;
-	t_philo			*philos;
-}	t_data;
+	int						total;
+	int						die;
+	int						eat;
+	int						sleep;
+	int						m_eat;
+	long int				start_t;
+	pthread_mutex_t			write_mutex;
+	pthread_mutex_t			dead;
+	pthread_mutex_t			time_eat;
+	pthread_mutex_t			finish;
+	int						nb_p_finish;
+	int						stop;
+}							t_arg;
 
 typedef struct s_philo
 {
-	int				id;
-	int				meals_eaten;
-	long			last_meal;
-	pthread_t		thread;
-	t_data			*data;
-	pthread_mutex_t	*left_fork;
-	pthread_mutex_t	*right_fork;
-	pthread_mutex_t meal_mutex;
-}	t_philo;
+	int						id;
+	pthread_t				thread_id;
+	pthread_t				thread_death_id;
+	pthread_mutex_t			*r_f;
+	pthread_mutex_t			l_f;
+	t_arg					*pa;
+	long int				ms_eat;
+	unsigned int			nb_eat;
+	int						finish;
+}							t_philo;
 
-int		ft_atoi(const char *str);
-int		parse_args(t_data *data, int argc, char **argv);
-int		init_philo(t_data *data);
-int		verif(t_data *data);
-int		start_simulation(t_data *data);
+typedef struct s_p
+{
+	t_philo					*ph;
+	t_arg					a;
+}							t_p;
 
-void	*routine(void *arg);
-void	print_state(t_philo *philo, char *msg);
-void	monitor(t_data *data);
-void	smart_sleep(long duration);
-void	do_routine_cycle(t_philo *philo);
-long	get_ms(void);
+/*
+** functions
+*/
+
+int				parse_args(int argc, char **argv, t_p *p);
+int				initialize(t_p *p);
+int				ft_exit(char *str);
+void			write_status(char *str, t_philo *ph);
+long int		actual_time(void);
+void			ft_putstr_fd(char *s, int fd);
+void			ft_usleep(long int time_in_ms);
+int				threading(t_p *p);
+void			activity(t_philo *ph);
+int				check_death(t_philo *ph, int i);
+int				ft_strlen(char *str);
 
 #endif

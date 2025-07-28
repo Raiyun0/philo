@@ -1,6 +1,6 @@
 NAME = philo
 
-SRC = ft_utils.c main.c ft_state.c
+SRC = utils.c main.c init.c philo.h utils2.c threads.c state.c
 OBJ = $(SRC:.c=.o)
 
 CC = cc

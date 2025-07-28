@@ -1,132 +1,55 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lakli-no <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/25 15:38:30 by lakli-no          #+#    #+#             */
-/*   Updated: 2025/06/25 15:38:31 by lakli-no         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "philo.h"
 
-int	verif(t_data *data)
+int	ft_exit(char *str)
 {
-	int	i;
-
-	i = 0;
-	data->philos = malloc(sizeof(t_philo) * data->nb_philo);
-	if (!data->philos)
-		return (1);
-	data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
-	if (!data->forks)
-		return (1);
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
-			return (1);
-		i++;
-	}
+	ft_putstr_fd("Error : ", 2);
+	ft_putstr_fd(str, 2);
 	return (0);
 }
 
-int	init_philo(t_data *data)
+int	check_death2(t_p *p)
 {
-	int	i;
-
-	if (verif(data) == 1)
-		return (1);
-	i = 0;
-	while (i < data->nb_philo)
+	pthread_mutex_lock(&p->a.dead);
+	if (p->a.stop)
 	{
-		data->philos[i].last_meal = get_ms();
-		data->philos[i].id = i + 1;
-		data->philos[i].meals_eaten = 0;
-		pthread_mutex_init(&data->philos[i].meal_mutex, NULL);
-		data->philos[i].data = data;
-		data->philos[i].left_fork = &data->forks[i];
-		data->philos[i].right_fork = &data->forks[(i + 1) % data->nb_philo];
-		i++;
-	}
-	if (pthread_mutex_init(&data->print_mutex, NULL) != 0)
+		pthread_mutex_unlock(&p->a.dead);
 		return (1);
-	data->someone_died = 0;
-	data->start_time = get_ms();
+	}
+	pthread_mutex_unlock(&p->a.dead);
 	return (0);
 }
 
-void	cleanup(t_data *data)
+void	stop(t_p *p)
 {
 	int	i;
 
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		pthread_mutex_destroy(&data->forks[i]);
-		pthread_mutex_destroy(&data->philos[i].meal_mutex);
-		i++;
-	}
-	pthread_mutex_destroy(&data->print_mutex);
-	free(data->forks);
-	free(data->philos);
+	i = -1;
+	while (!check_death2(p))
+		ft_usleep(1);
+	while (++i < p->a.total)
+		pthread_join(p->ph[i].thread_id, NULL);
+	pthread_mutex_destroy(&p->a.write_mutex);
+	i = -1;
+	while (++i < p->a.total)
+		pthread_mutex_destroy(&p->ph[i].l_f);
+	if (p->a.stop == 2)
+		printf("Each philosopher ate %d time(s)\n", p->a.m_eat);
+	free(p->ph);
 }
 
-int	start_simulation(t_data *data)
+int	main(int argc, char **argv)
 {
-	int	i;
+	t_p		p;
 
-	i = 0;
-	while (i < data->nb_philo)
+	if (!(parse_args(argc, argv, &p)))
+		return (ft_exit("Invalid Arguments\n"));
+	p.ph = malloc(sizeof(t_philo) * p.a.total);
+	if (!p.ph)
+		return (ft_exit("Malloc returned NULL\n"));
+	if (!initialize(&p) || !threading(&p))
 	{
-		if (pthread_create(&data->philos[i].thread,
-				NULL, routine, (void *)&data->philos[i]) != 0)
-		{
-			printf("Error thread");
-			return (1);
-		}
-		i++;
+		free(p.ph);
+		return (0);
 	}
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		if (pthread_join(data->philos[i].thread, NULL) != 0)
-		{
-			printf("error join");
-			return (1);
-		}
-		i++;
-	}
-	return (0);
-}
-
-int	main(int ac, char **av)
-{
-	t_data	data;
-
-	if (ac != 5 && ac != 6)
-	{
-		printf("error1");
-		return (1);
-	}
-	if (parse_args(&data, ac, av))
-	{
-		printf("error2");
-		return (1);
-	}
-	if (init_philo(&data) != 0)
-	{
-		printf("error3");
-		return (1);
-	}
-	if (start_simulation(&data) != 0)
-	{
-		printf("error4");
-		return (1);
-	}
-	monitor(&data);
-	cleanup(&data);
-	return (0);
+	stop(&p);
 }
