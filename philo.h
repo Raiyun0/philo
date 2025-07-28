@@ -1,19 +1,11 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-/*
-** libraries
-*/
-
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <sys/time.h>
 # include <pthread.h>
-
-/*
-** structures
-*/
 
 typedef struct s_arg
 {
@@ -49,10 +41,6 @@ typedef struct s_p
 	t_philo					*ph;
 	t_arg					a;
 }							t_p;
-
-/*
-** functions
-*/
 
 int				parse_args(int argc, char **argv, t_p *p);
 int				initialize(t_p *p);
